@@ -79,10 +79,6 @@ def handle(page)
     end
     @things << Thing.new(german, english, status)
   end
-
-  if link = page.select_links(".level-nav-next").first
-    handle(link.click)
-  end
 end
 
 a.get(login_url) do |page|
@@ -94,15 +90,10 @@ a.get(login_url) do |page|
 end
 
 a.get(course_url) do |page|
-  if link = page.select_links(".level").first
-    unless link.node.at(".level-index").text == "1"
-      raise "no first level link"
-    end
-  else
-    raise "no links"
+  levels = page.select_links(".level")
+  levels.each do |level|
+    handle(level.click)
   end
-  page = link.click
-  handle(page)
 end
 
 grouped = @things.group_by(&:status).map {|status,things| [status, things.map(&:german)]}.sort_by {|status,things| status}
